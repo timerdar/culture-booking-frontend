@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import api from "../../components/Api";
 
 
@@ -51,7 +51,7 @@ const AdminDashboardPage = () => {
 
     const hideEvent = async (eventId) => {
         try{
-            const response = await api.post(`/api/events/${eventId}/hide`, {}, {
+            await api.post(`/api/events/${eventId}/hide`, {}, {
                 headers: {
                     "Authorization" : `Bearer ${localStorage.getItem("CULT_JWT")}`
                 }
@@ -67,7 +67,7 @@ const AdminDashboardPage = () => {
 
     const showEvent = async (eventId) => {
         try{
-            const response = await api.post(`/api/events/${eventId}/show`, {}, {
+            await api.post(`/api/events/${eventId}/show`, {}, {
                 headers: {
                     "Authorization" : `Bearer ${localStorage.getItem("CULT_JWT")}`
                 }
@@ -81,10 +81,10 @@ const AdminDashboardPage = () => {
         }
     };
 
-    
+    if (loading) {
+        return <div>Загрузка...</div>
+    }
 
-
-    if (loading) return (<h1>Загрузка..</h1>);
 
     return (
         <div>

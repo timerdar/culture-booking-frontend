@@ -1,8 +1,9 @@
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 
 // Создаем экземпляр axios
-const api = axios.create();
+const api = axios.create(
+  {baseURL: process.env.REACT_APP_BASE_URL}
+);
 
 // Интерцептор ответа
 api.interceptors.response.use(
