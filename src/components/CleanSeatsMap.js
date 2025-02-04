@@ -9,7 +9,9 @@ const SeatsMap = (params) => {
 
     const mode = params.mode;
 
-    const [seats, setSeats] = useState([]);
+    //const [seats, setSeats] = useState([]);
+    const seats = params.seats;
+    const setSeats = params.setSeats;
     const [error, setError] = useState(null);
 
     const { eventId, sectorId } = useParams();
@@ -28,12 +30,17 @@ const SeatsMap = (params) => {
         if (mode === "select"){
             const newSeats = [];
 
+
             const fetchSector = async () => {
                 try{
+                    const colorResponse = await api.get(`/api/events/${eventId}/${sectorId}`)
+                    
+                    
+
                     //подгружаем места выбранного сектора и обновляем пул мест
                     const response = await api.get(`/api/events/${eventId}/${sectorId}/seats`);
                     const fetchedSeats = response.data;
-
+                    
                     fetchedSeats.forEach(fseat => {
                         genSeats.forEach(row => {
                             const nr = [];
@@ -41,10 +48,12 @@ const SeatsMap = (params) => {
                                 if (`${seat.row}-${seat.index}` === fseat.rowAndSeatNumber) {
                                     seat.seatId = fseat.id;
                                     seat.reserved = fseat.reserved;
-                                    seat.color = localStorage.getItem("SECTOR_COLOR");
+                                    if(seat.reserved){
+                                        seat.color = "#4d4d4d"
+                                    }else{
+                                        seat.color = colorResponse.data.color;
+                                    }
                                 };
-                                console.log(seat);
-                                
                                 nr.push(seat);
                             });
                             newSeats.push(nr);
@@ -52,23 +61,50 @@ const SeatsMap = (params) => {
                     });
                     setSeats(newSeats);
                 }catch (err){
-                    console.log(err);
-                    setError(err.response?.data?.message);
+                    if (err.response.status === 404){
+                        setSeats(genSeats);
+                        setError('К сожалению, свободных мест нет :(')
+                    }else {
+                        console.log(err);
+                        setError(err.response?.data?.message);
+                    }
                 }
             }
             
             fetchSector();
         }else{
+            setSeats(genSeats);
             return;
         }
     }, [mode, eventId, sectorId])
 
 
-    const handleSeatClick = (clickedSeat) => {
+    const handleSeatClick = async (clickedSeat) => {
         if (mode === "select") {
             if(!clickedSeat.reserved && clickedSeat.type === "seat"){
                 if (window.confirm(`Вы действительно хотите выбрать ${clickedSeat.row} ряд ${clickedSeat.index} место?`)){
-                    console.log('Выбрано место', clickedSeat.row, "-", clickedSeat.index);
+                    
+                    try{
+
+                        const ticket = await api.post(
+                            '/api/tickets',
+                            {
+                                visitor: {
+                                    name: localStorage.getItem("NAME"),
+                                    surname: localStorage.getItem("SURNAME"),
+                                    fathername: localStorage.getItem("FATHERNAME"),
+                                },
+                                eventId: eventId,
+                                sectorId: sectorId,
+                                seatId: clickedSeat.seatId
+                            }
+                        );
+
+                        window.location.href=`/tickets/${ticket.data.uuid}`
+                    }catch (err){
+                        setError(err.response?.data?.message);
+                    }
+                
                 }
             }
             
@@ -103,6 +139,7 @@ const SeatsMap = (params) => {
     return (
         <div>
           <h2>Карта рассадки</h2>
+          {error && <p style={{color: "red"}}>{error}</p>}
           <div>
             {seats.map((row, rowIndex) => (
               <div key={rowIndex}>

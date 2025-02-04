@@ -44,7 +44,7 @@ const SelectedEventPage = () => {
             <h2>Дата проведения - {Utils.formatDate(event.date)}</h2>
             <h2>Описание</h2>
             <p>{event.description}</p>
-            <button onClick={() => {navigate(`/events/${id}/reservation`)}}>Зарегистрироваться</button>
+            <button onClick={() => {navigate(`/events/${id}/identify`)}}>Зарегистрироваться</button>
         </div>
     );
 

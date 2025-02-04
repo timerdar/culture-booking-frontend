@@ -5,6 +5,9 @@ import AdminRegistrationPage from './pages/Admin/Registration';
 import AdminDashboardPage from './pages/Admin/Dashboard';
 import SelectedEventPage from './pages/Event/SelectedEventInfo';
 import SeatReservationPage from './pages/Event/SeatReservation';
+import EventGenerationPage from './pages/Admin/EventGeneration';
+import IdentifyPage from './pages/Event/Identify';
+import TicketPage from './pages/Ticket/Ticket';
 
 const App = () => {
   return (
@@ -14,13 +17,19 @@ const App = () => {
         <Route exact path="/" element={<Navigate to="/events"/>}/>
         <Route path="/events" element={<EventsPage />} />
         <Route path="/events/:id" element={<SelectedEventPage />} />
-        <Route path="/events/:id/identify" />
+        <Route path="/events/:eventId/identify" element={<IdentifyPage/>}/>
         <Route path="/events/:eventId/reservation/:sectorId" element={<SeatReservationPage/>}/>
+
+
+        <Route path="/tickets/:uuid" element={<TicketPage/>} /> 
+
+
 
         <Route path="/admin" element={<Navigate to="/admin/login" />} />
         <Route path="/admin/login" element={<AdminLoginPage/>} />
         <Route path="/admin/registration" element={<AdminRegistrationPage/>} />
         <Route path="/admin/dashboard" element={<AdminDashboardPage/> }/>
+        <Route path="/admin/createEvent" element={<EventGenerationPage/>}/>
       </Routes>
     </BrowserRouter>
     </div>
