@@ -40,8 +40,28 @@ const SeatsMap = (params) => {
                     //подгружаем места выбранного сектора и обновляем пул мест
                     const response = await api.get(`/api/events/${eventId}/${sectorId}/seats`);
                     const fetchedSeats = response.data;
+
+
+                    genSeats.forEach(row => {
+                        const newRow = [];
+                        row.forEach(seat => {
+                            if (fetchedSeats.some(fseat => `${seat.row}-${seat.index}` === fseat.rowAndSeatNumber)){
+                                const fseat = fetchedSeats.find(fseat => `${seat.row}-${seat.index}` === fseat.rowAndSeatNumber);
+                                seat.seatId = fseat.id;
+                                seat.reserved = fseat.reserved;
+                                if(seat.reserved){
+                                    seat.color = "#4d4d4d"
+                                }else{
+                                    seat.color = colorResponse.data.color;
+                                }
+                            }
+                            newRow.push(seat);
+                        });
+                        newSeats.push(newRow);
+                    })
+
                     
-                    fetchedSeats.forEach(fseat => {
+                    /*fetchedSeats.forEach(fseat => {
                         genSeats.forEach(row => {
                             const nr = [];
                             row.forEach((seat) => {
@@ -58,7 +78,7 @@ const SeatsMap = (params) => {
                             });
                             newSeats.push(nr);
                         });
-                    });
+                    });*/
                     setSeats(newSeats);
                 }catch (err){
                     if (err.response.status === 404){

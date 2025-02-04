@@ -71,6 +71,7 @@ const TicketPage = () => {
                 }
             };
             fetchAdmin();
+            downloadPdf();
         }
     }, [event]);
 
@@ -97,8 +98,15 @@ const TicketPage = () => {
         }
     };
 
-    const downloadPdf = () => {
-        
+    const downloadPdf = async () => {
+        const response = await api.get(`/api/tickets/generate/pdf/${ticket.uuid}`, {responseType: "blob"});
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `ticket-${uuid}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
     };
 
     if (loading) {

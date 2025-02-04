@@ -3,7 +3,6 @@ import { useParams } from "react-router-dom";
 import api from "../../components/Api";
 
 
-
 const IdentifyPage = () => {
 
     const {eventId} = useParams();
@@ -81,6 +80,7 @@ const IdentifyPage = () => {
                         <div key={index}>
                             <input 
                                     type="radio"
+                                    name="radio"
                                     value={sector.id}
                                     onChange={(event) => setSelectedSector(event.target.value)}
                                 />

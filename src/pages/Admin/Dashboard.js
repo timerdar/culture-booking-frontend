@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../components/Api";
+import Utils from "../../components/Utils";
 
 
 const AdminDashboardPage = () => {
@@ -95,7 +96,7 @@ const AdminDashboardPage = () => {
             <ul>
             {events.map((event) => (
                 <li key={event.id}>
-                    <p>{event.name} - {event.date}</p>
+                    <p>{event.name} - {Utils.formatDate(event.date)}</p>
                     <p>Занято {statistics[event.id].res} Свободно {statistics[event.id].free}</p>
                     <p>Мероприятие {event.visible ? <b>открыто</b> : <b>скрыто</b>}</p>
                     <button onClick={() => {hideEvent(event.id)}}>Скрыть</button>

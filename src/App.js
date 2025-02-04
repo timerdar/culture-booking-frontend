@@ -20,10 +20,7 @@ const App = () => {
         <Route path="/events/:eventId/identify" element={<IdentifyPage/>}/>
         <Route path="/events/:eventId/reservation/:sectorId" element={<SeatReservationPage/>}/>
 
-
         <Route path="/tickets/:uuid" element={<TicketPage/>} /> 
-
-
 
         <Route path="/admin" element={<Navigate to="/admin/login" />} />
         <Route path="/admin/login" element={<AdminLoginPage/>} />
