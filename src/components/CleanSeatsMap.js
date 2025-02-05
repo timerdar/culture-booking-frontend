@@ -4,6 +4,8 @@ import api from "./Api";
 import '../App.css';
 import { useParams } from "react-router-dom";
 
+import styles from "../pages/Event/SeatReservation.module.css";
+
 
 const SeatsMap = (params) => {
 
@@ -60,25 +62,6 @@ const SeatsMap = (params) => {
                         newSeats.push(newRow);
                     })
 
-                    
-                    /*fetchedSeats.forEach(fseat => {
-                        genSeats.forEach(row => {
-                            const nr = [];
-                            row.forEach((seat) => {
-                                if (`${seat.row}-${seat.index}` === fseat.rowAndSeatNumber) {
-                                    seat.seatId = fseat.id;
-                                    seat.reserved = fseat.reserved;
-                                    if(seat.reserved){
-                                        seat.color = "#4d4d4d"
-                                    }else{
-                                        seat.color = colorResponse.data.color;
-                                    }
-                                };
-                                nr.push(seat);
-                            });
-                            newSeats.push(nr);
-                        });
-                    });*/
                     setSeats(newSeats);
                 }catch (err){
                     if (err.response.status === 404){
@@ -119,7 +102,7 @@ const SeatsMap = (params) => {
                                 seatId: clickedSeat.seatId
                             }
                         );
-
+                        localStorage.clear();
                         window.location.href=`/tickets/${ticket.data.uuid}`
                     }catch (err){
                         setError(err.response?.data?.message);
@@ -157,15 +140,16 @@ const SeatsMap = (params) => {
     };
 
     return (
-        <div>
-          <h2>Карта рассадки</h2>
-          {error && <p style={{color: "red"}}>{error}</p>}
+        <div className={styles.container}>
+          <h2 className={styles.title}>Карта рассадки</h2>
+          {error && <p className={styles.error}>{error}</p>}
           <div>
             {seats.map((row, rowIndex) => (
-              <div key={rowIndex}>
+              <div key={rowIndex} className={styles.row}>
                 {row.map((seat, seatIndex) => (
                     <button
                         class="seat"
+                        className={`${styles.seat} ${seat.reserved ? styles.reserved : ""} ${seat.type === "aisle" ? styles.aisle : ""}`}
                         key={`${rowIndex}-${seatIndex}`}
                         style={getSeatStyle(seat)}
                         onClick={() => handleSeatClick(seat)}

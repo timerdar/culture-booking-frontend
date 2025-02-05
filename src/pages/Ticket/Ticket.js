@@ -3,10 +3,13 @@ import { useParams } from "react-router-dom";
 import api from "../../components/Api";
 import Utils from "../../components/Utils";
 
+import styles from "./Ticket.module.css";
 
 const TicketPage = () => {
 
     const { uuid } = useParams();
+
+    document.title = "Просмотр билета";
 
     const imgUrl = `${process.env.REACT_APP_BACKEND_BASE_URL}/api/tickets/generate/qr/${uuid}`;
 
@@ -71,12 +74,14 @@ const TicketPage = () => {
                 }
             };
             fetchAdmin();
-            downloadPdf();
+            if (ticket.ticketStatus === "CREATED"){
+                downloadPdf();
+            }
         }
     }, [event]);
 
 
-    const cancelTicket = () => {
+    const cancelTicket = (ticket) => {
         if (window.confirm("Вы действительно хотите отменить билет?")){
             try{
                 api.post(`/api/tickets/${ticket.uuid}/cancel`);
@@ -87,11 +92,11 @@ const TicketPage = () => {
         }
     };
 
-    const useTicket = () => {
+    const usedTicket = (ticket) => {
         if (window.confirm("Использовать билет?")){
             try{
-                api.post(`/api/tickets/${ticket.uuid}/check`);
-                window.location.reload();
+                api.post(`/api/tickets/${ticket.uuid}/check`)
+                .then(() => {window.location.reload()});;
             }catch(err){
                 setError(err.response?.data?.message);
             }
@@ -119,34 +124,41 @@ const TicketPage = () => {
     //BANNED
 
     return (
-        <div>
-            <h1>Билет</h1>
-            {error && <p style={{color: "red"}}>{error}</p>}
+        <div className={styles.container}>
+            <h1 className={styles.title}>Билет</h1>
+            {error && <p className={styles.errorMessage}>{error}</p>}
             {ticket.ticketStatus === "BANNED" && 
-            <div>
-                <h1 style={{color: "red"}}>БИЛЕТ ОТОЗВАН АДМИНИСТРАТОРОМ!</h1>
+            <div className={styles.ticketStatus + " " + styles.ticketStatusBanned}>
+                <h1>БИЛЕТ ОТОЗВАН АДМИНИСТРАТОРОМ!</h1>
                 <p>Для подробной информации свяжитесь с администратором {admin.name} {admin.mobilePhone}</p>
             </div>
             }
             {ticket.ticketStatus === "USED" &&
-            <div>
-                <h1 style={{color: "green"}}>БИЛЕТ ИСПОЛЬЗОВАН</h1>
+            <div className={styles.ticketStatus + " " + styles.ticketStatusUsed}>
+                <h1>БИЛЕТ ИСПОЛЬЗОВАН</h1>
             </div>
             }
             {ticket.ticketStatus === "CANCELED" &&
-            <div>
-                <h1 style={{color: "red"}}>БИЛЕТ ОТМЕНЕН И НЕДЕЙСТВИТЕЛЕН</h1>
+            <div className={styles.ticketStatus + " " + styles.ticketStatusCanceled}>
+                <h1>БИЛЕТ ОТМЕНЕН И НЕДЕЙСТВИТЕЛЕН</h1>
             </div>
             }
-            <button onClick={downloadPdf}>Скачать PDF</button>
-            <p>Посетитель: <span>{`${visitor.surname} ${visitor.name} ${visitor.fathername}`}</span></p>
-            <p>Мероприятие: <span>{event.name}</span></p>
-            <p>Дата проведения: <span>{Utils.formatDate(event.date)}</span></p>
-            <p>Сектор: <span>{sector.name}</span> Ряд <span>{seat.rowAndSeatNumber.split("-")[0]}</span> Место <span>{seat.rowAndSeatNumber.split("-")[1]}</span></p>
-            <img src={`${imgUrl}`} alt="ticket_qr"/>
+            <button className={styles.button} onClick={downloadPdf}>Скачать PDF</button>
+
+            <div className={styles.ticketDetails}>
+                <p>Посетитель: <span>{`${visitor.surname} ${visitor.name} ${visitor.fathername}`}</span></p>
+                <p>Мероприятие: <span>{event.name}</span></p>
+                <p>Дата проведения: <span>{Utils.formatDate(event.date)}</span></p>
+                <p>Сектор: <span>{sector.name}</span> Ряд <span>{seat.rowAndSeatNumber.split("-")[0]}</span> Место <span>{seat.rowAndSeatNumber.split("-")[1]}</span></p>
+            </div>
             
-            <button onClick={cancelTicket}>Отменить билет</button>
-            <button onClick={useTicket}>Использовать</button>
+            <img className={styles.qrCode} src={`${imgUrl}`} alt="ticket_qr" />
+            
+            <div className={styles.buttons}>
+                <button className={styles.button} onClick={() => cancelTicket(ticket)}>Отменить билет</button>
+                <button className={styles.button} onClick={() => usedTicket(ticket)}>Использовать</button>
+            </div>
+                        
             </div>
     );
 };

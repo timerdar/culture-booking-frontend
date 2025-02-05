@@ -3,8 +3,12 @@ import SeatsMap from "../../components/CleanSeatsMap";
 import SectorList from "../../components/SectorList";
 import api from "../../components/Api";
 
+import styles1 from "../Event/SeatReservation.module.css";
+import styles2 from "../Event/Identify.module.css";
 
 const EventGenerationPage = () => {
+
+    document.title = "Создание мероприятия";
 
     const [name, setName] = useState('');
     const [poster, setPoster] = useState(null);
@@ -34,7 +38,7 @@ const EventGenerationPage = () => {
                 const formattedSeats = [];
                 seats.forEach((row) => {
                     row.forEach((seat) => {
-                        if (seat.color === sector.color){
+                        if (seat.color === sector.color && seat.row && seat.index){
                             formattedSeats.push({rowAndSeatNumber: `${seat.row}-${seat.index}`})
                         }
                     })
@@ -65,10 +69,10 @@ const EventGenerationPage = () => {
                 })
 
                 if (poster){
+                    
                     const formData = new FormData();
                     formData.append("file", poster);
                     await api.post(`/api/events/poster?eventId=${eventCreation.data.id}`, formData, {
-                        mode: "cors",
                         headers : {
                             "Authorization" : `Bearer ${localStorage.getItem("CULT_JWT")}`
                         }
@@ -88,11 +92,14 @@ const EventGenerationPage = () => {
 
     return (
 
-        <div>
-            <h1>Создание мероприятия</h1>
+        <div className={styles1.container}>
+            <div className={styles1.logoCont}>
+                <img src="../../../logo_192.png" alt="Логотип Культурной среды" className={styles1.logo}/>
+            </div>
+            <h1 className={styles1.title}>Создание мероприятия</h1>
             {error && <p style={{color: "red"}}>{error}</p>}
-            <p>Для создания мероприятия необходимо заполнить <b>все</b> поля, создать сектора и распределить посадочные места по секторам.</p>
-            <form onSubmit={handleSubmit}>
+            <p className={styles1.description}>Для создания мероприятия необходимо заполнить <b>все</b> поля, создать сектора и распределить посадочные места по секторам.</p>
+            <form className={styles2.container} onSubmit={handleSubmit}>
                 
                 <input 
                     type="text"
@@ -100,6 +107,7 @@ const EventGenerationPage = () => {
                     placeholder="Название мероприятия"
                     value={name}
                     autoComplete="off"
+                    className={styles2.inputField}
                     onChange={(e) => setName(e.target.value)}
                 />
 
@@ -110,12 +118,14 @@ const EventGenerationPage = () => {
                     cols={25}
                     autoComplete="off"
                     required          
+                    className={styles2.inputField}
                     onChange={(e) => setDescription(e.target.value)}            
                 />
                  
                 <input
                     type="file"
                     required
+                    className={styles2.submitButton}
                     placeholder="Афиша для мероприятия"
                     autoComplete="off"
                     onChange={(e) => setPoster(e.target.files[0])}
@@ -123,6 +133,7 @@ const EventGenerationPage = () => {
 
                 <input 
                     type='datetime-local'
+                    className={styles2.inputField}
                     required
                     placeholder="Дата мероприятия"
                     autoComplete="off"
@@ -130,17 +141,18 @@ const EventGenerationPage = () => {
                     onChange={(e) => setDate(e.target.value)} 
                 />
 
-                <button type="submit">Создать мероприятие</button>
+                    
+                <button type="submit" className={styles2.submitButton}>Создать мероприятие</button>
             </form>
-            <h2>Распределение мест по секторам</h2>
-            <p>
+            <h2 className={styles1.title}>Распределение мест по секторам</h2>
+            <p className={styles1.description}>
                 Ниже находится таблица, в которую необходимо добавлять новый сектор (факультет) и выбирать цвет.
                 Факультет, выделенный жирным цветом - выбранный. Его цветом будут помечаться места.
             </p>
-            <p>
+            <p className={styles1.description}>
                 <b>Факультеты</b>, которым не выделили мест - будут удалены.
             </p>
-            <p>
+            <p className={styles1.description}>
                 <b>Места</b>, которые не относятся ни к какому из факультетов - не будут доступны для бронирования.
             </p>
 
@@ -152,12 +164,17 @@ const EventGenerationPage = () => {
                 setSectors={setSectors}
             />
 
-            <SeatsMap 
-                mode="assign"
-                selectedColor={sectorColor}
-                seats={seats}
-                setSeats={setSeats}         
-            />
+            <div className={styles1.seatMapWrapper}>
+                <div className={styles1.seatMapContainer}>
+                    <SeatsMap 
+                    mode="assign"
+                    selectedColor={sectorColor}
+                    seats={seats}
+                    setSeats={setSeats}         
+                    />
+                </div>
+            </div>
+            
         </div>
     );
 };

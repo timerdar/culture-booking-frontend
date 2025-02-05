@@ -1,5 +1,7 @@
 import { useState } from "react";
 
+import styles from "../pages/Event/Identify.module.css";
+
 const SectorList = (params) => {
 
     const mode = params.mode;
@@ -30,7 +32,7 @@ const SectorList = (params) => {
 
 
     return (
-        <div>
+        <div className={styles.container}>
             <table>
                 <thead>
                     <tr>

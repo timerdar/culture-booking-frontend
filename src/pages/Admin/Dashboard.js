@@ -3,8 +3,13 @@ import { useNavigate } from "react-router-dom";
 import api from "../../components/Api";
 import Utils from "../../components/Utils";
 
+import styles from "../Event/Events.module.css";
+
 
 const AdminDashboardPage = () => {
+
+
+    document.title = "Панель администратора";
 
     const [loading, setLoading] = useState(true);
     const [statistics, setStatistics] = useState([]);
@@ -82,27 +87,48 @@ const AdminDashboardPage = () => {
         }
     };
 
+
+    const deleteEvent = async (eventId) => {
+        try{
+            if (window.confirm("Вы уверены, что хотите удалить мероприятие?")){
+                if (window.confirm("Вы ТОЧНО уверены, что хотите удалить мероприятие?")){
+                    await api.delete(`/api/events/${eventId}`, {
+                        headers: {
+                            "Authorization" : `Bearer ${localStorage.getItem("CULT_JWT")}`
+                        }
+                    });
+                }
+            }
+            window.location.reload();
+        }catch(err){
+            setError(`Не удалось удалить меропритие: ${err.response?.data?.message}`)
+        }
+    };
+
     if (loading) {
         return <div>Загрузка...</div>
     }
 
 
     return (
-        <div>
-            <h1>Основная панель администратора</h1>
-            <button onClick={() => {navigate("/admin/createEvent")}}>Создать мероприятие</button>
+        <div className={styles.container}>
+            <div className={styles.logoCont}>
+                <img src="../../../logo_192.png" alt="Логотип Культурной среды" className={styles.logo}/>
+            </div>
+            <h1 className={styles.title}>Основная панель администратора</h1>
+            <button className={styles.registerButton} onClick={() => {navigate("/admin/createEvent")}}>Создать мероприятие</button>
             <p>Для получения/изменения мероприятия необходимо выбрать из списка</p>
             {error && <p style={{color: "red"}}>{error}</p>}
-            <ul>
+            <ul className={styles.eventList}>
             {events.map((event) => (
-                <li key={event.id}>
-                    <p>{event.name} - {Utils.formatDate(event.date)}</p>
-                    <p>Занято {statistics[event.id].res} Свободно {statistics[event.id].free}</p>
-                    <p>Мероприятие {event.visible ? <b>открыто</b> : <b>скрыто</b>}</p>
-                    <button onClick={() => {hideEvent(event.id)}}>Скрыть</button>
-                    <button onClick={() => {showEvent(event.id)}}>Показать</button>
-                    <button onClick={() => {}}>Выгрузить статистику</button>
-                    {console.log(event)}
+                <li className={styles.eventItem} key={event.id}>
+                    <p className={styles.description}>{event.name} - {Utils.formatDate(event.date)}</p>
+                    <p className={styles.description}>Занято {statistics[event.id].res} Свободно {statistics[event.id].free}</p>
+                    <p className={styles.description}>Мероприятие {event.visible ? <b>открыто</b> : <b>скрыто</b>}</p>
+                    <button className={styles.registerButton} onClick={() => {hideEvent(event.id)}}>Скрыть</button>
+                    <button className={styles.registerButton} onClick={() => {showEvent(event.id)}}>Показать</button>
+                    <button className={styles.registerButton} onClick={() => {deleteEvent(event.id)}}>Удалить</button>
+                    <button className={styles.registerButton} onClick={() => {navigate(`/admin/${event.id}/tickets/`)}}>Открыть статистику</button>
                 </li>
             ))}
             </ul>

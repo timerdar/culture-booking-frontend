@@ -8,6 +8,8 @@ import SeatReservationPage from './pages/Event/SeatReservation';
 import EventGenerationPage from './pages/Admin/EventGeneration';
 import IdentifyPage from './pages/Event/Identify';
 import TicketPage from './pages/Ticket/Ticket';
+import AdminTicketsList from './pages/Admin/AdminTicketsList';
+
 
 const App = () => {
   return (
@@ -26,6 +28,7 @@ const App = () => {
         <Route path="/admin/login" element={<AdminLoginPage/>} />
         <Route path="/admin/registration" element={<AdminRegistrationPage/>} />
         <Route path="/admin/dashboard" element={<AdminDashboardPage/> }/>
+        <Route path="/admin/:eventId/tickets" element={<AdminTicketsList/> }/>
         <Route path="/admin/createEvent" element={<EventGenerationPage/>}/>
       </Routes>
     </BrowserRouter>
