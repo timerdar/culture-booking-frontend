@@ -71,9 +71,9 @@ const AdminTicketsList = () => {
     const exportExcel = () => {
 
         const data = [];
-        data.push(["ФИО", "Сектор", "Время брони", "Ряд-Место"]);
+        data.push(["uuid", "ФИО", "Сектор", "Время брони", "Ряд-Место"]);
         ticketsInfo.forEach(item => {
-            data.push([item.visitor, item.sector, item.created, item.seat]);
+            data.push([item.uuid, item.visitor, item.sector, item.created, item.seat]);
         })
         
 
@@ -84,7 +84,7 @@ const AdminTicketsList = () => {
     
         const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
         const fileData = new Blob([excelBuffer], { type: "application/octet-stream" });
-        saveAs(fileData, `tickets-${selectedEvent.name}-${Date.now()}.xlsx`);
+        saveAs(fileData, `tickets-${selectedEvent.name}-${(new Date(Date.now())).toLocaleDateString().replace("/", "0")}.xlsx`);
     };
 
     const banTicket = (ticket) => {

@@ -125,10 +125,10 @@ const AdminDashboardPage = () => {
                     <p className={styles.description}>{event.name} - {Utils.formatDate(event.date)}</p>
                     <p className={styles.description}>Занято {statistics[event.id].res} Свободно {statistics[event.id].free}</p>
                     <p className={styles.description}>Мероприятие {event.visible ? <b>открыто</b> : <b>скрыто</b>}</p>
+                    <button className={styles.registerButton} onClick={() => {navigate(`/admin/${event.id}/tickets/`)}}>Открыть статистику</button>
                     <button className={styles.registerButton} onClick={() => {hideEvent(event.id)}}>Скрыть</button>
                     <button className={styles.registerButton} onClick={() => {showEvent(event.id)}}>Показать</button>
                     <button className={styles.registerButton} onClick={() => {deleteEvent(event.id)}}>Удалить</button>
-                    <button className={styles.registerButton} onClick={() => {navigate(`/admin/${event.id}/tickets/`)}}>Открыть статистику</button>
                 </li>
             ))}
             </ul>

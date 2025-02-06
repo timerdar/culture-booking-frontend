@@ -85,8 +85,8 @@ const TicketPage = () => {
         if (window.confirm("Вы действительно хотите отменить билет?")){
             try{
                 api.post(`/api/tickets/${ticket.uuid}/cancel`);
-                window.location.href = "/";
             }catch(err){
+                console.log(err)
                 setError(err.response?.data?.message);
             }
         }
@@ -143,7 +143,7 @@ const TicketPage = () => {
                 <h1>БИЛЕТ ОТМЕНЕН И НЕДЕЙСТВИТЕЛЕН</h1>
             </div>
             }
-            <button className={styles.button} onClick={downloadPdf}>Скачать PDF</button>
+            <button className={styles.button} onClick={() => downloadPdf()}>Скачать PDF</button>
 
             <div className={styles.ticketDetails}>
                 <p>Посетитель: <span>{`${visitor.surname} ${visitor.name} ${visitor.fathername}`}</span></p>
@@ -155,8 +155,8 @@ const TicketPage = () => {
             <img className={styles.qrCode} src={`${imgUrl}`} alt="ticket_qr" />
             
             <div className={styles.buttons}>
-                <button className={styles.button} onClick={() => cancelTicket(ticket)}>Отменить билет</button>
-                <button className={styles.button} onClick={() => usedTicket(ticket)}>Использовать</button>
+                <button className={styles.button} onClick={() => {cancelTicket(ticket)}}>Отменить билет</button>
+                <button className={styles.button} onClick={() => {usedTicket(ticket)}}>Использовать</button>
             </div>
                         
             </div>
