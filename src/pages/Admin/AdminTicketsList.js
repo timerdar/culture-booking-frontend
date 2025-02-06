@@ -49,7 +49,8 @@ const AdminTicketsList = () => {
                         sector: sectorReq.data.name,
                         sectorColor: sectorReq.data.color,
                         created: Utils.formatDate(ticket.created),
-                        seat: seatReq.data.rowAndSeatNumber
+                        seat: seatReq.data.rowAndSeatNumber,
+                        status: ticket.ticketStatus
                     };
                 });
 
@@ -71,9 +72,9 @@ const AdminTicketsList = () => {
     const exportExcel = () => {
 
         const data = [];
-        data.push(["uuid", "ФИО", "Сектор", "Время брони", "Ряд-Место"]);
+        data.push(["uuid", "ФИО", "Сектор", "Время брони", "Ряд-Место", "Статус"]);
         ticketsInfo.forEach(item => {
-            data.push([item.uuid, item.visitor, item.sector, item.created, item.seat]);
+            data.push([item.uuid, item.visitor, item.sector, item.created, item.seat, item.status]);
         })
         
 
@@ -132,7 +133,7 @@ const AdminTicketsList = () => {
                             <td>{ticketInfo.created}</td>
                             <td>{ticketInfo.seat}</td>
                             <td>
-                                <button 
+                                <button disabled={ticketInfo.status === "USED"}
                                     className={styles.banButton} 
                                     onClick={() => banTicket(ticketInfo)}
                                 >
