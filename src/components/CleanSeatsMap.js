@@ -16,6 +16,8 @@ const SeatsMap = (params) => {
     const setSeats = params.setSeats;
     const [error, setError] = useState(null);
 
+    const [isAllReserved, setAllRes] = useState(false);
+    const [sectorColor, setSectorColor] = useState('');
     const { eventId, sectorId } = useParams();
 
 
@@ -43,6 +45,7 @@ const SeatsMap = (params) => {
                     const response = await api.get(`/api/events/${eventId}/${sectorId}/seats`);
                     const fetchedSeats = response.data;
 
+                    let reservedCount = 0;
 
                     genSeats.forEach(row => {
                         const newRow = [];
@@ -51,8 +54,11 @@ const SeatsMap = (params) => {
                                 const fseat = fetchedSeats.find(fseat => `${seat.row}-${seat.index}` === fseat.rowAndSeatNumber);
                                 seat.seatId = fseat.id;
                                 seat.reserved = fseat.reserved;
+                                setSectorColor(colorResponse.data.color);
+
                                 if(seat.reserved){
-                                    seat.color = "#4d4d4d"
+                                    seat.color = "#5e5d5d"
+                                    reservedCount ++;
                                 }else{
                                     seat.color = colorResponse.data.color;
                                 }
@@ -61,7 +67,9 @@ const SeatsMap = (params) => {
                         });
                         newSeats.push(newRow);
                     })
-
+                    if (reservedCount === fetchedSeats.length){
+                        setAllRes(true);
+                    }
                     setSeats(newSeats);
                 }catch (err){
                     if (err.response.status === 404){
@@ -143,6 +151,13 @@ const SeatsMap = (params) => {
         <div className={styles.container}>
           <h2 className={styles.title}>Карта рассадки</h2>
           {error && <p className={styles.error}>{error}</p>}
+          {isAllReserved && mode === "select" && <p className={styles.error}>К сожалению, все места выбранного сектора заняты</p>}
+          <div>
+            <button style={{backgroundColor: sectorColor}}>_</button>Места выбранного сектора
+            <button style={{backgroundColor: "#b5b5b5"}}>_</button>Места другого сектора
+            <button style={{backgroundColor: "#5e5d5d"}}>_</button>Занятые места выбранного сектора
+          </div>
+          <p className={styles.title}>Сцена</p>
           <div>
             {seats.map((row, rowIndex) => (
               <div key={rowIndex} className={styles.row}>

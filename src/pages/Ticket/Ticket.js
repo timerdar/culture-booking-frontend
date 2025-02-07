@@ -22,6 +22,7 @@ const TicketPage = () => {
     const [sector, setSector] = useState(null);
     const [seat, setSeat] = useState(null);
     const [visitor, setVisitor] = useState(null);
+    const [isButtonActive, setIsButtonActive] = useState(false);
 
     useEffect(() => {
 
@@ -53,6 +54,7 @@ const TicketPage = () => {
                 setSeat(seatReq.data);
                 setVisitor(visitorReq.data);
                 setEvent(eventReq.data);
+
                 
             }catch(err){
                 setError(err.response?.data?.message)
@@ -74,6 +76,11 @@ const TicketPage = () => {
                 }
             };
             fetchAdmin();
+            const eventDateTime = new Date(event.date);
+            const now = new Date();    
+            const diffMinutes = (eventDateTime - now) / 60000; 
+            console.log(diffMinutes <= 60, diffMinutes);
+            setIsButtonActive(diffMinutes <= 60);
             if (ticket.ticketStatus === "CREATED"){
                 downloadPdf();
             }
@@ -84,7 +91,8 @@ const TicketPage = () => {
     const cancelTicket = (ticket) => {
         if (window.confirm("Вы действительно хотите отменить билет?")){
             try{
-                api.post(`/api/tickets/${ticket.uuid}/cancel`);
+                api.post(`/api/tickets/${ticket.uuid}/cancel`)
+                .then(() => {window.location.reload()});;;
             }catch(err){
                 console.log(err)
                 setError(err.response?.data?.message);
@@ -135,7 +143,7 @@ const TicketPage = () => {
             }
             {ticket.ticketStatus === "USED" &&
             <div className={styles.ticketStatus + " " + styles.ticketStatusUsed}>
-                <h1>БИЛЕТ ИСПОЛЬЗОВАН</h1>
+                <h1>БИЛЕТ УЖЕ АКТИВИРОВАН ПРИ ВХОДЕ</h1>
             </div>
             }
             {ticket.ticketStatus === "CANCELED" &&
@@ -156,7 +164,14 @@ const TicketPage = () => {
             
             <div className={styles.buttons}>
                 <button className={styles.button} onClick={() => {cancelTicket(ticket)}}>Отменить билет</button>
-                <button className={styles.button} onClick={() => {usedTicket(ticket)}}>Использовать</button>
+                <button
+                    className={styles.button}
+                    onClick={() => {usedTicket(ticket)}}
+                    disabled={!isButtonActive}
+                    >
+                    {isButtonActive ? "НАЖМИ ПРИ ВХОДЕ В ЗАЛ" : "Ожидание"}
+                </button>
+                    {!isButtonActive && <p>Кнопка станет активной за 40 минут до мероприятия</p>}
             </div>
                         
             </div>

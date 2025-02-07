@@ -130,7 +130,7 @@ const EventGenerationPage = () => {
                     autoComplete="off"
                     onChange={(e) => setPoster(e.target.files[0])}
                />
-
+                <p className={styles1.description}>Дата и время проведения мероприятия</p>
                 <input 
                     type='datetime-local'
                     className={styles2.inputField}

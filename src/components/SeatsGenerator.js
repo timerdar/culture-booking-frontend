@@ -148,7 +148,7 @@ const generateSeats = (mode) => {
 
     const defaultReservationStatus = mode === "select";
 
-    const color = "#808080";
+    const color = "#b5b5b5";
     
     for (let i = 1; i < 6; i++){
         initSeats.push(gen1(i, color, defaultReservationStatus));
