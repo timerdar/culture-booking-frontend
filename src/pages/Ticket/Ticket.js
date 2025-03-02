@@ -17,11 +17,7 @@ const TicketPage = () => {
     const [loading, setLoading] = useState(true);
 
     const [ticket, setTicket] = useState(null);
-    const [event, setEvent] = useState(null);
-    const [admin, setAdmin] = useState(null);
-    const [sector, setSector] = useState(null);
-    const [seat, setSeat] = useState(null);
-    const [visitor, setVisitor] = useState(null);
+    
     const [isButtonActive, setIsButtonActive] = useState(false);
 
     useEffect(() => {
@@ -29,54 +25,20 @@ const TicketPage = () => {
         const fetchTicket = async () => {
 
             try{
-
-                const ticketReq = await api.get(`/api/tickets/${uuid}`);
+                const ticketReq = await api.get(`/api/tickets/${uuid}/info`);
                 setTicket(ticketReq.data);
             }catch(err){
                 setError(err.response?.data?.message);
             }
-
+            setLoading(false);
         };
         fetchTicket();
 
     }, [uuid]);
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [eventReq, sectorReq, seatReq, visitorReq] =  await Promise.all([
-                    api.get(`/api/events/${ticket.eventId}`),
-                    api.get(`/api/events/${ticket.eventId}/${ticket.sectorId}`),
-                    api.get(`/api/events/${ticket.eventId}/${ticket.sectorId}/${ticket.seatId}`),
-                    api.get(`/api/visitor/${ticket.visitorId}`)
-                ]);
-                setSector(sectorReq.data);
-                setSeat(seatReq.data);
-                setVisitor(visitorReq.data);
-                setEvent(eventReq.data);
-
-                
-            }catch(err){
-                setError(err.response?.data?.message)
-            }
-        };
-        fetchData();
-    }, [ticket]);
-
-    useEffect(() => {
-        if (event && event.adminId) {
-            const fetchAdmin = async () => {
-                try {
-                    const resp = await api.get(`/api/admin/${event.adminId}`);
-                    setAdmin(resp.data);
-                } catch (err) {
-                    setError(err.response?.data?.message);
-                } finally { 
-                    setLoading(false);
-                }
-            };
-            fetchAdmin();
-            const eventDateTime = new Date(event.date);
+        if (ticket.event) {
+            const eventDateTime = new Date(ticket.event.date);
             const now = new Date();    
             const diffMinutes = (eventDateTime - now) / 60000; 
             console.log(diffMinutes <= 60, diffMinutes);
@@ -85,7 +47,7 @@ const TicketPage = () => {
                 downloadPdf();
             }
         }
-    }, [event]);
+    }, [ticket]);
 
 
     const cancelTicket = (ticket) => {
@@ -138,7 +100,7 @@ const TicketPage = () => {
             {ticket.ticketStatus === "BANNED" && 
             <div className={styles.ticketStatus + " " + styles.ticketStatusBanned}>
                 <h1>БИЛЕТ ОТОЗВАН АДМИНИСТРАТОРОМ!</h1>
-                <p>Для подробной информации свяжитесь с администратором {admin.name} {admin.mobilePhone}</p>
+                <p>Для подробной информации свяжитесь с администратором</p>
             </div>
             }
             {ticket.ticketStatus === "USED" &&
@@ -154,10 +116,10 @@ const TicketPage = () => {
             <button className={styles.button} onClick={() => downloadPdf()}>Скачать PDF</button>
 
             <div className={styles.ticketDetails}>
-                <p>Посетитель: <span>{`${visitor.surname} ${visitor.name} ${visitor.fathername}`}</span></p>
-                <p>Мероприятие: <span>{event.name}</span></p>
-                <p>Дата проведения: <span>{Utils.formatDate(event.date)}</span></p>
-                <p>Сектор: <span>{sector.name}</span> Ряд <span>{seat.rowAndSeatNumber.split("-")[0]}</span> Место <span>{seat.rowAndSeatNumber.split("-")[1]}</span></p>
+                <p>Посетитель: <span>{`${ticket.visitor.surname} ${ticket.visitor.name} ${ticket.visitor.fathername}`}</span></p>
+                <p>Мероприятие: <span>{ticket.event.name}</span></p>
+                <p>Дата проведения: <span>{Utils.formatDate(ticket.event.date)}</span></p>
+                <p>Сектор: <span>{ticket.sector.name}</span> Ряд <span>{ticket.seat.split("-")[0]}</span> Место <span>{ticket.seat.split("-")[1]}</span></p>
             </div>
             
             <img className={styles.qrCode} src={`${imgUrl}`} alt="ticket_qr" />

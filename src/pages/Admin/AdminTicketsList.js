@@ -35,15 +35,18 @@ const AdminTicketsList = () => {
                 const ticketsData = ticketsRes.data;
                 setEvent(eventRes.data);
 
-                const ticketDetailsPromises = ticketsData.map(async (ticket) => {
+                const ticketDetailsPromises = ticketsData.map((ticket) => {
 
-                    const [sectorReq, visitorReq, seatReq] = await Promise.all([
+                    /*const [sectorReq, visitorReq, seatReq] = await Promise.all([
                         api.get(`/api/events/${ticket.eventId}/${ticket.sectorId}`),
                         api.get(`/api/visitor/${ticket.visitorId}`),
                         api.get(`/api/events/${ticket.eventId}/${ticket.sectorId}/${ticket.seatId}`)
-                    ]);
+                    ]);*/
+                    const ticketInfo = api.get(`/api/tickets/${ticket.uuid}/info`);
 
-                    return {
+                    return ticketInfo;
+
+                    /*return {
                         uuid: ticket.uuid,
                         visitor: `${visitorReq.data.surname} ${visitorReq.data.name} ${visitorReq.data.fathername}`,
                         sector: sectorReq.data.name,
@@ -51,10 +54,10 @@ const AdminTicketsList = () => {
                         created: Utils.formatDate(ticket.created),
                         seat: seatReq.data.rowAndSeatNumber,
                         status: ticket.ticketStatus
-                    };
+                    };*/
                 });
 
-                const detailedTickets = await Promise.all(ticketDetailsPromises);
+                const detailedTickets = ticketDetailsPromises;
                 setTicketsInfo(detailedTickets);
 
                 return
