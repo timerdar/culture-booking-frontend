@@ -163,9 +163,7 @@ const EventGenerationPage = () => {
                 sectors={sectors}
                 setSectors={setSectors}
             />
-
             <div className={styles1.seatMapWrapper}>
-                <div className={styles1.seatMapContainer}>
                     <SeatsMap 
                     mode="assign"
                     selectedColor={sectorColor}
@@ -173,7 +171,6 @@ const EventGenerationPage = () => {
                     setSeats={setSeats}         
                     />
                 </div>
-            </div>
             
         </div>
     );

@@ -15,14 +15,12 @@ const SeatReservationPage = () => {
 
         <div className={styles.container}>
             <div className={styles.logoCont}>
-                <img src="../../../logo_192.png" alt="Логотип Культурной среды" className={styles.logo}/>
+                <img src="../../../logo_192.png" alt="Логотип Культурной среды" className={styles.logo} />
             </div>
             <h1 className={styles.title}>Выбор места</h1>
             <p className={styles.description}>Выберите место, которое относится к выбранному сектору</p>
             <div className={styles.seatMapWrapper}>
-                <div className={styles.seatMapContainer}>
-                    <SeatsMap mode={mode} seats={seats} setSeats={setSeats}/> 
-                </div>            
+                <SeatsMap mode={mode} seats={seats} setSeats={setSeats} />
             </div>
 
         </div>

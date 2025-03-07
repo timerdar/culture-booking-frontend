@@ -9,6 +9,7 @@ import EventGenerationPage from './pages/Admin/EventGeneration';
 import IdentifyPage from './pages/Event/Identify';
 import TicketPage from './pages/Ticket/Ticket';
 import AdminTicketsList from './pages/Admin/AdminTicketsList';
+import SeatsControlPage from './pages/Admin/SeatsControlPage';
 
 
 const App = () => {
@@ -30,6 +31,8 @@ const App = () => {
         <Route path="/admin/dashboard" element={<AdminDashboardPage/> }/>
         <Route path="/admin/:eventId/tickets" element={<AdminTicketsList/> }/>
         <Route path="/admin/createEvent" element={<EventGenerationPage/>}/>
+        <Route path="/admin/:eventId/seatsControl" element={<SeatsControlPage/>}/>
+        
       </Routes>
     </BrowserRouter>
     </div>

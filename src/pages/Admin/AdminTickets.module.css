@@ -60,6 +60,15 @@
     border-radius: 3px;
 }
 
+.checkButton {
+    padding: 5px 10px;
+    background-color: green;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 3px;
+}
+
 .banButton:hover {
     background-color: darkred;
 }

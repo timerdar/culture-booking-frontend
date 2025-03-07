@@ -11,7 +11,7 @@ const TicketPage = () => {
 
     document.title = "Просмотр билета";
 
-    const imgUrl = `${process.env.REACT_APP_BACKEND_BASE_URL}/api/tickets/generate/qr/${uuid}`;
+    const imgUrl = `${process.env.REACT_APP_BASE_URL}/api/tickets/generate/qr/${uuid}`;
 
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -26,29 +26,24 @@ const TicketPage = () => {
 
             try{
                 const ticketReq = await api.get(`/api/tickets/${uuid}/info`);
+                if (ticketReq.data.event) {
+                    const eventDateTime = new Date(ticketReq.data.event.date);
+                    const now = new Date();    
+                    const diffMinutes = (eventDateTime - now) / 60000; 
+                    console.log(diffMinutes <= 60, diffMinutes);
+                    setIsButtonActive(diffMinutes <= 60);
+                    if (ticketReq.data.status === "CREATED"){
+                        downloadPdf(ticketReq.data.uuid);
+                    }
+                }
                 setTicket(ticketReq.data);
             }catch(err){
                 setError(err.response?.data?.message);
             }
             setLoading(false);
         };
-        fetchTicket();
-
+        fetchTicket();        
     }, [uuid]);
-
-    useEffect(() => {
-        if (ticket.event) {
-            const eventDateTime = new Date(ticket.event.date);
-            const now = new Date();    
-            const diffMinutes = (eventDateTime - now) / 60000; 
-            console.log(diffMinutes <= 60, diffMinutes);
-            setIsButtonActive(diffMinutes <= 60);
-            if (ticket.ticketStatus === "CREATED"){
-                downloadPdf();
-            }
-        }
-    }, [ticket]);
-
 
     const cancelTicket = (ticket) => {
         if (window.confirm("Вы действительно хотите отменить билет?")){
@@ -73,8 +68,8 @@ const TicketPage = () => {
         }
     };
 
-    const downloadPdf = async () => {
-        const response = await api.get(`/api/tickets/generate/pdf/${ticket.uuid}`, {responseType: "blob"});
+    const downloadPdf = async (uuid) => {
+        const response = await api.get(`/api/tickets/generate/pdf/${uuid}`, {responseType: "blob"});
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const a = document.createElement("a");
         a.href = url;
@@ -97,19 +92,19 @@ const TicketPage = () => {
         <div className={styles.container}>
             <h1 className={styles.title}>Билет</h1>
             {error && <p className={styles.errorMessage}>{error}</p>}
-            {ticket.ticketStatus === "BANNED" && 
-            <div className={styles.ticketStatus + " " + styles.ticketStatusBanned}>
+            {ticket.status === "BANNED" && 
+            <div className={styles.status + " " + styles.ticketStatusBanned}>
                 <h1>БИЛЕТ ОТОЗВАН АДМИНИСТРАТОРОМ!</h1>
                 <p>Для подробной информации свяжитесь с администратором</p>
             </div>
             }
-            {ticket.ticketStatus === "USED" &&
-            <div className={styles.ticketStatus + " " + styles.ticketStatusUsed}>
+            {ticket.status === "USED" &&
+            <div className={styles.status + " " + styles.ticketStatusUsed}>
                 <h1>БИЛЕТ УЖЕ АКТИВИРОВАН ПРИ ВХОДЕ</h1>
             </div>
             }
-            {ticket.ticketStatus === "CANCELED" &&
-            <div className={styles.ticketStatus + " " + styles.ticketStatusCanceled}>
+            {ticket.status === "CANCELED" &&
+            <div className={styles.status + " " + styles.ticketStatusCanceled}>
                 <h1>БИЛЕТ ОТМЕНЕН И НЕДЕЙСТВИТЕЛЕН</h1>
             </div>
             }
