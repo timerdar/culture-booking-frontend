@@ -19,10 +19,6 @@ const SeatsMap = (params) => {
     const [isAllReserved, setAllRes] = useState(false);
     const [sectorColor, setSectorColor] = useState('#000000');
     const { eventId, sectorId } = useParams();
-
-    console.log(eventId, sectorId);
-    
-
     //При странице выбора включаем только нужные места
     useEffect(() => {
         
@@ -181,7 +177,7 @@ const SeatsMap = (params) => {
     };
 // 
     return (
-        <div>
+        <div className={styles.container}>
           <h2 className={styles.title}>Карта рассадки</h2>
           {error && <p className={styles.error}>{error}</p>}
           {isAllReserved && mode === "select" && <p className={styles.error}>К сожалению, все места выбранного сектора заняты</p>}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import SeatsMap from "../../components/CleanSeatsMap";
 
 import styles from "./SeatReservation.module.css";
@@ -11,11 +11,16 @@ const SeatReservationPage = () => {
 
     const [seats, setSeats] = useState([]);
 
+
+    useEffect(() => {
+        document.getElementById("centerElement")?.scrollIntoView({ block: "center", inline: "center", behavior: "smooth" });
+      }, []);
+
     return (
 
         <div className={styles.container}>
             <div className={styles.logoCont}>
-                <img src="../../../logo_192.png" alt="Логотип Культурной среды" className={styles.logo} />
+                <img  id="centerElement" src="../../../logo_192.png" alt="Логотип Культурной среды" className={styles.logo} />
             </div>
             <h1 className={styles.title}>Выбор места</h1>
             <p className={styles.description}>Выберите место, которое относится к выбранному сектору</p>

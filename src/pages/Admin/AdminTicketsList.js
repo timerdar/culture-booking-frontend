@@ -139,6 +139,12 @@ const AdminTicketsList = () => {
                                 >
                                     Отметить присутстивие
                                 </button>
+                                <button
+                                    className={styles.checkButton} 
+                                    onClick={() => window.open(`/tickets/${ticketInfo.uuid}`, '_blank')}
+                                >
+                                    Посмотреть билет
+                                </button>
                             </td>
                         </tr>
                     ))}

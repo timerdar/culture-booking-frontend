@@ -90,6 +90,9 @@ const TicketPage = () => {
 
     return (
         <div className={styles.container}>
+            <div className={styles.posterContainer}>
+                <img src={`${process.env.REACT_APP_BASE_URL}/api/events/${ticket.event.id}/poster`} alt="Афиша" className={styles.poster} />
+            </div>
             <h1 className={styles.title}>Билет</h1>
             {error && <p className={styles.errorMessage}>{error}</p>}
             {ticket.status === "BANNED" && 
@@ -117,7 +120,6 @@ const TicketPage = () => {
                 <p>Сектор: <span>{ticket.sector.name}</span> Ряд <span>{ticket.seat.split("-")[0]}</span> Место <span>{ticket.seat.split("-")[1]}</span></p>
             </div>
             
-            <img className={styles.qrCode} src={`${imgUrl}`} alt="ticket_qr" />
             
             <div className={styles.buttons}>
                 <button className={styles.button} onClick={() => {cancelTicket(ticket)}}>Отменить билет</button>
@@ -130,6 +132,7 @@ const TicketPage = () => {
                 </button>
                     {!isButtonActive && <p>Кнопка станет активной за 40 минут до мероприятия</p>}
             </div>
+            <img className={styles.qrCode} src={`${imgUrl}`} alt="ticket_qr" />
                         
             </div>
     );
