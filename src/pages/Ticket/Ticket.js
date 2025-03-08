@@ -11,17 +11,13 @@ const TicketPage = () => {
 
     document.title = "Просмотр билета";
 
-    const imgUrl = `${process.env.REACT_APP_BACKEND_BASE_URL}/api/tickets/generate/qr/${uuid}`;
+    const imgUrl = `${process.env.REACT_APP_BASE_URL}/api/tickets/generate/qr/${uuid}`;
 
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
 
     const [ticket, setTicket] = useState(null);
-    const [event, setEvent] = useState(null);
-    const [admin, setAdmin] = useState(null);
-    const [sector, setSector] = useState(null);
-    const [seat, setSeat] = useState(null);
-    const [visitor, setVisitor] = useState(null);
+    
     const [isButtonActive, setIsButtonActive] = useState(false);
 
     useEffect(() => {
@@ -29,64 +25,25 @@ const TicketPage = () => {
         const fetchTicket = async () => {
 
             try{
-
-                const ticketReq = await api.get(`/api/tickets/${uuid}`);
+                const ticketReq = await api.get(`/api/tickets/${uuid}/info`);
+                if (ticketReq.data.event) {
+                    const eventDateTime = new Date(ticketReq.data.event.date);
+                    const now = new Date();    
+                    const diffMinutes = (eventDateTime - now) / 60000; 
+                    console.log(diffMinutes <= 60, diffMinutes);
+                    setIsButtonActive(diffMinutes <= 60);
+                    if (ticketReq.data.status === "CREATED"){
+                        downloadPdf(ticketReq.data.uuid);
+                    }
+                }
                 setTicket(ticketReq.data);
             }catch(err){
                 setError(err.response?.data?.message);
             }
-
+            setLoading(false);
         };
-        fetchTicket();
-
+        fetchTicket();        
     }, [uuid]);
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [eventReq, sectorReq, seatReq, visitorReq] =  await Promise.all([
-                    api.get(`/api/events/${ticket.eventId}`),
-                    api.get(`/api/events/${ticket.eventId}/${ticket.sectorId}`),
-                    api.get(`/api/events/${ticket.eventId}/${ticket.sectorId}/${ticket.seatId}`),
-                    api.get(`/api/visitor/${ticket.visitorId}`)
-                ]);
-                setSector(sectorReq.data);
-                setSeat(seatReq.data);
-                setVisitor(visitorReq.data);
-                setEvent(eventReq.data);
-
-                
-            }catch(err){
-                setError(err.response?.data?.message)
-            }
-        };
-        fetchData();
-    }, [ticket]);
-
-    useEffect(() => {
-        if (event && event.adminId) {
-            const fetchAdmin = async () => {
-                try {
-                    const resp = await api.get(`/api/admin/${event.adminId}`);
-                    setAdmin(resp.data);
-                } catch (err) {
-                    setError(err.response?.data?.message);
-                } finally { 
-                    setLoading(false);
-                }
-            };
-            fetchAdmin();
-            const eventDateTime = new Date(event.date);
-            const now = new Date();    
-            const diffMinutes = (eventDateTime - now) / 60000; 
-            console.log(diffMinutes <= 60, diffMinutes);
-            setIsButtonActive(diffMinutes <= 60);
-            if (ticket.ticketStatus === "CREATED"){
-                downloadPdf();
-            }
-        }
-    }, [event]);
-
 
     const cancelTicket = (ticket) => {
         if (window.confirm("Вы действительно хотите отменить билет?")){
@@ -111,8 +68,8 @@ const TicketPage = () => {
         }
     };
 
-    const downloadPdf = async () => {
-        const response = await api.get(`/api/tickets/generate/pdf/${ticket.uuid}`, {responseType: "blob"});
+    const downloadPdf = async (uuid) => {
+        const response = await api.get(`/api/tickets/generate/pdf/${uuid}`, {responseType: "blob"});
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const a = document.createElement("a");
         a.href = url;
@@ -133,34 +90,36 @@ const TicketPage = () => {
 
     return (
         <div className={styles.container}>
+            <div className={styles.posterContainer}>
+                <img src={`${process.env.REACT_APP_BASE_URL}/api/events/${ticket.event.id}/poster`} alt="Афиша" className={styles.poster} />
+            </div>
             <h1 className={styles.title}>Билет</h1>
             {error && <p className={styles.errorMessage}>{error}</p>}
-            {ticket.ticketStatus === "BANNED" && 
-            <div className={styles.ticketStatus + " " + styles.ticketStatusBanned}>
+            {ticket.status === "BANNED" && 
+            <div className={styles.status + " " + styles.ticketStatusBanned}>
                 <h1>БИЛЕТ ОТОЗВАН АДМИНИСТРАТОРОМ!</h1>
-                <p>Для подробной информации свяжитесь с администратором {admin.name} {admin.mobilePhone}</p>
+                <p>Для подробной информации свяжитесь с администратором</p>
             </div>
             }
-            {ticket.ticketStatus === "USED" &&
-            <div className={styles.ticketStatus + " " + styles.ticketStatusUsed}>
+            {ticket.status === "USED" &&
+            <div className={styles.status + " " + styles.ticketStatusUsed}>
                 <h1>БИЛЕТ УЖЕ АКТИВИРОВАН ПРИ ВХОДЕ</h1>
             </div>
             }
-            {ticket.ticketStatus === "CANCELED" &&
-            <div className={styles.ticketStatus + " " + styles.ticketStatusCanceled}>
+            {ticket.status === "CANCELED" &&
+            <div className={styles.status + " " + styles.ticketStatusCanceled}>
                 <h1>БИЛЕТ ОТМЕНЕН И НЕДЕЙСТВИТЕЛЕН</h1>
             </div>
             }
             <button className={styles.button} onClick={() => downloadPdf()}>Скачать PDF</button>
 
             <div className={styles.ticketDetails}>
-                <p>Посетитель: <span>{`${visitor.surname} ${visitor.name} ${visitor.fathername}`}</span></p>
-                <p>Мероприятие: <span>{event.name}</span></p>
-                <p>Дата проведения: <span>{Utils.formatDate(event.date)}</span></p>
-                <p>Сектор: <span>{sector.name}</span> Ряд <span>{seat.rowAndSeatNumber.split("-")[0]}</span> Место <span>{seat.rowAndSeatNumber.split("-")[1]}</span></p>
+                <p>Посетитель: <span>{`${ticket.visitor.surname} ${ticket.visitor.name} ${ticket.visitor.fathername}`}</span></p>
+                <p>Мероприятие: <span>{ticket.event.name}</span></p>
+                <p>Дата проведения: <span>{Utils.formatDate(ticket.event.date)}</span></p>
+                <p>Сектор: <span>{ticket.sector.name}</span> Ряд <span>{ticket.seat.split("-")[0]}</span> Место <span>{ticket.seat.split("-")[1]}</span></p>
             </div>
             
-            <img className={styles.qrCode} src={`${imgUrl}`} alt="ticket_qr" />
             
             <div className={styles.buttons}>
                 <button className={styles.button} onClick={() => {cancelTicket(ticket)}}>Отменить билет</button>
@@ -173,6 +132,7 @@ const TicketPage = () => {
                 </button>
                     {!isButtonActive && <p>Кнопка станет активной за 40 минут до мероприятия</p>}
             </div>
+            <img className={styles.qrCode} src={`${imgUrl}`} alt="ticket_qr" />
                         
             </div>
     );

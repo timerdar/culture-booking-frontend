@@ -9,29 +9,39 @@ import EventGenerationPage from './pages/Admin/EventGeneration';
 import IdentifyPage from './pages/Event/Identify';
 import TicketPage from './pages/Ticket/Ticket';
 import AdminTicketsList from './pages/Admin/AdminTicketsList';
+import SeatsControlPage from './pages/Admin/SeatsControlPage';
+import './App.css';
 
 
 const App = () => {
   return (
     <div>
-    <BrowserRouter>
-      <Routes>
-        <Route exact path="/" element={<Navigate to="/events"/>}/>
-        <Route path="/events" element={<EventsPage />} />
-        <Route path="/events/:id" element={<SelectedEventPage />} />
-        <Route path="/events/:eventId/identify" element={<IdentifyPage/>}/>
-        <Route path="/events/:eventId/reservation/:sectorId" element={<SeatReservationPage/>}/>
+      <BrowserRouter>
+        <Routes>
+          <Route exact path="/" element={<Navigate to="/events" />} />
+          <Route path="/events" element={<EventsPage />} />
+          <Route path="/events/:id" element={<SelectedEventPage />} />
+          <Route path="/events/:eventId/identify" element={<IdentifyPage />} />
+          <Route path="/events/:eventId/reservation/:sectorId" element={<SeatReservationPage />} />
 
-        <Route path="/tickets/:uuid" element={<TicketPage/>} /> 
+          <Route path="/tickets/:uuid" element={<TicketPage />} />
 
-        <Route path="/admin" element={<Navigate to="/admin/login" />} />
-        <Route path="/admin/login" element={<AdminLoginPage/>} />
-        <Route path="/admin/registration" element={<AdminRegistrationPage/>} />
-        <Route path="/admin/dashboard" element={<AdminDashboardPage/> }/>
-        <Route path="/admin/:eventId/tickets" element={<AdminTicketsList/> }/>
-        <Route path="/admin/createEvent" element={<EventGenerationPage/>}/>
-      </Routes>
-    </BrowserRouter>
+          <Route path="/admin" element={<Navigate to="/admin/login" />} />
+          <Route path="/admin/login" element={<AdminLoginPage />} />
+          <Route path="/admin/registration" element={<AdminRegistrationPage />} />
+          <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+          <Route path="/admin/:eventId/tickets" element={<AdminTicketsList />} />
+          <Route path="/admin/createEvent" element={<EventGenerationPage />} />
+          <Route path="/admin/:eventId/seatsControl" element={<SeatsControlPage />} />
+
+        </Routes>
+      </BrowserRouter>
+      <div style={{
+        textAlign: "center",
+        alignItems: "center"
+        }}>
+        dev by <a href="https://vk.com/timerdar">timerdar</a>
+      </div>
     </div>
   );
 };

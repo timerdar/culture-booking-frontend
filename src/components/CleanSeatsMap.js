@@ -17,15 +17,8 @@ const SeatsMap = (params) => {
     const [error, setError] = useState(null);
 
     const [isAllReserved, setAllRes] = useState(false);
-    const [sectorColor, setSectorColor] = useState('');
+    const [sectorColor, setSectorColor] = useState('#000000');
     const { eventId, sectorId } = useParams();
-
-
-    
-    
-    //Создаем массив дефолнтых мест
-    
-
     //При странице выбора включаем только нужные места
     useEffect(() => {
         
@@ -83,9 +76,43 @@ const SeatsMap = (params) => {
             }
             
             fetchSector();
-        }else{
+        }else if(mode === "assign"){
             setSeats(genSeats);
             return;
+        }else if(mode === "control"){
+            const newSeats = [];
+            
+            const fetchSeats = async () => {
+                try{
+                    const seats = await api.get(`/api/events/${eventId}/allSeats`)
+
+                    genSeats.forEach(row => {
+                        const newRow = [];
+                        row.forEach(seat => {
+                            seats.data.forEach(sectorAndSeats => {
+                                if (sectorAndSeats.seats.some(sectorsSeat => `${seat.row}-${seat.index}` === sectorsSeat.rowAndSeatNumber)){
+                                    const fseat = sectorAndSeats.seats.find(fseat => `${seat.row}-${seat.index}` === fseat.rowAndSeatNumber);
+                                    if(fseat.reserved){
+                                        seat.color = "#5e5d5d"
+                                    }else{
+                                        seat.color = sectorAndSeats.sector.color;
+                                    }
+                                }; 
+                            });
+                            newRow.push(seat);
+                        });
+                        newSeats.push(newRow);
+                    });
+    
+                    setSeats(newSeats)
+                }catch (err){
+                    console.log(err);
+                    setError(err.response?.data?.message);
+                };
+                
+            };
+
+            fetchSeats();
         }
     }, [mode, eventId, sectorId])
 
@@ -119,7 +146,7 @@ const SeatsMap = (params) => {
                 }
             }
             
-        }else{ //распределение мест
+        }else if(mode === "assign"){ //распределение мест
             const color = params.selectedColor;
             const allSeats = [...seats];
             allSeats.forEach(row => {
@@ -129,6 +156,8 @@ const SeatsMap = (params) => {
                 };
             });
             setSeats(allSeats);
+        } else if(mode === "control"){
+            return;
         }};
 
 
@@ -146,7 +175,7 @@ const SeatsMap = (params) => {
             return { backgroundColor: seat.color, cursor: 'pointer' };
         }
     };
-
+// 
     return (
         <div className={styles.container}>
           <h2 className={styles.title}>Карта рассадки</h2>

@@ -16,7 +16,7 @@ const SelectedEventPage = () => {
     const [admin, setAdmin] = useState(null);
     const navigate = useNavigate();
 
-    const imgUrl = `${process.env.REACT_APP_BACKEND_BASE_URL}/api/events/${id}/poster`;
+    const imgUrl = `${process.env.REACT_APP_BASE_URL}/api/events/${id}/poster`;
 
     useEffect(() => {
 
