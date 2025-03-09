@@ -111,7 +111,7 @@ const TicketPage = () => {
                 <h1>БИЛЕТ ОТМЕНЕН И НЕДЕЙСТВИТЕЛЕН</h1>
             </div>
             }
-            <button className={styles.button} onClick={() => downloadPdf()}>Скачать PDF</button>
+            <button className={styles.button} onClick={() => downloadPdf(uuid)}>Скачать PDF</button>
 
             <div className={styles.ticketDetails}>
                 <p>Посетитель: <span>{`${ticket.visitor.surname} ${ticket.visitor.name} ${ticket.visitor.fathername}`}</span></p>
