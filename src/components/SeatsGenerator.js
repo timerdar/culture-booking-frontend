@@ -76,7 +76,7 @@ const gen3 = (row, color, defaultReservationStatus) => {
 const gen4 = (row, color, defaultReservationStatus) => {
     const generatedRowOfSeats = [];
     for (let i = 1; i < 31; i++) {
-        if (i === 7 || i === 8 || i === 23 | i === 24) {
+        if (i === 7 || i === 8 || i === 23 || i === 24) {
             generatedRowOfSeats.push(generateAisle());
         } else {
             let key;
@@ -120,7 +120,7 @@ const gen6 = (row, color, defaultReservationStatus) => {
             let key;
             if (i < 6){
                 key = i;
-            }else if(i > 26){
+            }else if(i > 24){
                 key = i - 3;
             }else{
                 key = i - 2;
