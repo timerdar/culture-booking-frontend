@@ -8,12 +8,13 @@ const IdentifyPage = () => {
 
     document.title = "Анкета зрителя";
 
-    const {eventId} = useParams();
+    const { eventId } = useParams();
 
     const [name, setName] = useState('');
     const [surname, setSurname] = useState('');
     const [fathername, setFathername] = useState('');
     const [selectedSector, setSelectedSector] = useState('');
+    const [email, setEmail] = useState('');
 
     const [sectors, setSectors] = useState([]);
 
@@ -22,11 +23,11 @@ const IdentifyPage = () => {
     useEffect(() => {
 
         const fetchSectors = async () => {
-            try{
+            try {
 
                 const response = await api.get(`/api/events/${eventId}/sectors`);
                 setSectors(response.data);
-            }catch (err){
+            } catch (err) {
                 setError(err.response?.data?.message)
             }
         };
@@ -37,10 +38,11 @@ const IdentifyPage = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (surname && name && fathername && selectedSector){
+        if (surname && name && fathername && selectedSector) {
             localStorage.setItem("NAME", name);
             localStorage.setItem("SURNAME", surname);
             localStorage.setItem("FATHERNAME", fathername);
+            localStorage.setItem("EMAIL", email);
             localStorage.setItem("SECTOR", selectedSector);
 
 
@@ -51,46 +53,56 @@ const IdentifyPage = () => {
     return (
         <div className={styles.container}>
             <div className={styles.logoCont}>
-                <img src="../../../logo_192.png" alt="Логотип Культурной среды" className={styles.logo}/>
+                <img src="../../../logo_192.png" alt="Логотип Культурной среды" className={styles.logo} />
             </div>
             <form onSubmit={handleSubmit} className={styles.container}>
-            {error && <p className={styles.errorMessage}>{error}</p>}  
-            <h1 className={styles.title}>Введите свои данные</h1>
-            <input 
-                        type="text"
-                        autoComplete="off"
-                        required
-                        placeholder="Фамилия"
-                        value={surname}
-                        onChange={(event) => {setSurname(event.target.value)}}
-                        className={styles.inputField}
-                    />
-            <input 
-                        type="text"
-                        autoComplete="off"
-                        required
-                        placeholder="Имя"
-                        value={name}
-                        onChange={(event) => {setName(event.target.value)}}
-                        className={styles.inputField}
-                    />
-            <input
-                        type="text"
-                        autoComplete="off"
-                        required
-                        placeholder="Отчество"
-                        value={fathername}
-                        onChange={(event) => {setFathername(event.target.value)}}
-                        className={styles.inputField}
-                    />
+                {error && <p className={styles.errorMessage}>{error}</p>}
+                <h1 className={styles.title}>Введите свои данные</h1>
+                <input
+                    type="text"
+                    autoComplete="off"
+                    required
+                    placeholder="Фамилия"
+                    value={surname}
+                    onChange={(event) => { setSurname(event.target.value) }}
+                    className={styles.inputField}
+                />
+                <input
+                    type="text"
+                    autoComplete="off"
+                    required
+                    placeholder="Имя"
+                    value={name}
+                    onChange={(event) => { setName(event.target.value) }}
+                    className={styles.inputField}
+                />
+                <input
+                    type="text"
+                    autoComplete="off"
+                    required
+                    placeholder="Отчество"
+                    value={fathername}
+                    onChange={(event) => { setFathername(event.target.value) }}
+                    className={styles.inputField}
+                />
+                <h1 className={styles.title}>Почта используется для получения билета</h1>
+                <input
+                    type="email"
+                    autoComplete="off"
+                    required
+                    placeholder="Email"
+                    value={email}
+                    onChange={(event) => { setEmail(event.target.value) }}
+                    className={styles.inputField}
+                />
 
-                    <div className={styles.radioContainer}>
-                        <label>
-                            Выберите сектор:
-                        </label>
-                        {sectors.map((sector, index) => (
+                <div className={styles.radioContainer}>
+                    <label>
+                        Выберите сектор:
+                    </label>
+                    {sectors.map((sector, index) => (
                         <div key={index}>
-                            <input 
+                            <input
                                 type="radio"
                                 name="radio"
                                 value={sector.id}
@@ -98,19 +110,19 @@ const IdentifyPage = () => {
                                 onChange={(event) => setSelectedSector(event.target.value)}
                             />
                             <label className={styles.radioLabel}>{sector.name}</label>
-                    </div>
-                ))}
-                    </div>
-                
-                
-            <button type="submit" className={styles.submitButton}>
-                Выбрать место
-            </button>
-        </form>
+                        </div>
+                    ))}
+                </div>
+
+
+                <button type="submit" className={styles.submitButton}>
+                    Выбрать место
+                </button>
+            </form>
         </div>
-        
+
     );
- 
+
 };
 
 export default IdentifyPage;
