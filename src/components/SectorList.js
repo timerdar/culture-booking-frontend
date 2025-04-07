@@ -20,7 +20,7 @@ const SectorList = (params) => {
 
         if (mode === "assign"){
             const newS = {name: newSector.name, color: newSector.color};
-            if (!sectors.some(item => item.name === newSector.name)){
+            if (!sectors.some(item => item.name === newSector.name) && !sectors.some(item => item.color === newSector.color)){
                 setSectors((prev) => [...prev, 
                     newS
                 ]);

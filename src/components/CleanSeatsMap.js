@@ -21,18 +21,18 @@ const SeatsMap = (params) => {
     const { eventId, sectorId } = useParams();
     //При странице выбора включаем только нужные места
     useEffect(() => {
-        
+
         const genSeats = generateSeats(mode);
-        
-        if (mode === "select"){
+
+        if (mode === "select") {
             const newSeats = [];
 
 
             const fetchSector = async () => {
-                try{
+                try {
                     const colorResponse = await api.get(`/api/events/${eventId}/${sectorId}`)
-                    
-                    
+
+
 
                     //подгружаем места выбранного сектора и обновляем пул мест
                     const response = await api.get(`/api/events/${eventId}/${sectorId}/seats`);
@@ -43,16 +43,16 @@ const SeatsMap = (params) => {
                     genSeats.forEach(row => {
                         const newRow = [];
                         row.forEach(seat => {
-                            if (fetchedSeats.some(fseat => `${seat.row}-${seat.index}` === fseat.rowAndSeatNumber)){
+                            if (fetchedSeats.some(fseat => `${seat.row}-${seat.index}` === fseat.rowAndSeatNumber)) {
                                 const fseat = fetchedSeats.find(fseat => `${seat.row}-${seat.index}` === fseat.rowAndSeatNumber);
                                 seat.seatId = fseat.id;
                                 seat.reserved = fseat.reserved;
                                 setSectorColor(colorResponse.data.color);
 
-                                if(seat.reserved){
+                                if (seat.reserved) {
                                     seat.color = "#5e5d5d"
-                                    reservedCount ++;
-                                }else{
+                                    reservedCount++;
+                                } else {
                                     seat.color = colorResponse.data.color;
                                 }
                             }
@@ -60,56 +60,56 @@ const SeatsMap = (params) => {
                         });
                         newSeats.push(newRow);
                     })
-                    if (reservedCount === fetchedSeats.length){
+                    if (reservedCount === fetchedSeats.length) {
                         setAllRes(true);
                     }
                     setSeats(newSeats);
-                }catch (err){
-                    if (err.response.status === 404){
+                } catch (err) {
+                    if (err.response.status === 404) {
                         setSeats(genSeats);
                         setError('К сожалению, свободных мест нет :(')
-                    }else {
+                    } else {
                         console.log(err);
                         setError(err.response?.data?.message);
                     }
                 }
             }
-            
+
             fetchSector();
-        }else if(mode === "assign"){
+        } else if (mode === "assign") {
             setSeats(genSeats);
             return;
-        }else if(mode === "control"){
+        } else if (mode === "control") {
             const newSeats = [];
-            
+
             const fetchSeats = async () => {
-                try{
+                try {
                     const seats = await api.get(`/api/events/${eventId}/allSeats`)
 
                     genSeats.forEach(row => {
                         const newRow = [];
                         row.forEach(seat => {
                             seats.data.forEach(sectorAndSeats => {
-                                if (sectorAndSeats.seats.some(sectorsSeat => `${seat.row}-${seat.index}` === sectorsSeat.rowAndSeatNumber)){
+                                if (sectorAndSeats.seats.some(sectorsSeat => `${seat.row}-${seat.index}` === sectorsSeat.rowAndSeatNumber)) {
                                     const fseat = sectorAndSeats.seats.find(fseat => `${seat.row}-${seat.index}` === fseat.rowAndSeatNumber);
-                                    if(fseat.reserved){
+                                    if (fseat.reserved) {
                                         seat.color = "#5e5d5d"
-                                    }else{
+                                    } else {
                                         seat.color = sectorAndSeats.sector.color;
                                     }
-                                }; 
+                                };
                             });
                             newRow.push(seat);
                         });
                         newSeats.push(newRow);
                     });
-    
+
                     setSeats(newSeats)
-                }catch (err){
+                } catch (err) {
                     console.log(err);
                     setError(err.response?.data?.message);
                 };
-                
+
             };
 
             fetchSeats();
@@ -119,10 +119,10 @@ const SeatsMap = (params) => {
 
     const handleSeatClick = async (clickedSeat) => {
         if (mode === "select") {
-            if(!clickedSeat.reserved && clickedSeat.type === "seat"){
-                if (window.confirm(`Вы действительно хотите выбрать ${clickedSeat.row} ряд ${clickedSeat.index} место?`)){
-                    
-                    try{
+            if (!clickedSeat.reserved && clickedSeat.type === "seat") {
+                if (window.confirm(`Вы действительно хотите выбрать ${clickedSeat.row} ряд ${clickedSeat.index} место?`)) {
+
+                    try {
 
                         const ticket = await api.post(
                             '/api/tickets',
@@ -131,6 +131,7 @@ const SeatsMap = (params) => {
                                     name: localStorage.getItem("NAME"),
                                     surname: localStorage.getItem("SURNAME"),
                                     fathername: localStorage.getItem("FATHERNAME"),
+                                    email: localStorage.getItem("EMAIL")
                                 },
                                 eventId: eventId,
                                 sectorId: sectorId,
@@ -138,75 +139,81 @@ const SeatsMap = (params) => {
                             }
                         );
                         localStorage.clear();
-                        window.location.href=`/tickets/${ticket.data.uuid}`
-                    }catch (err){
+                        window.location.href = `/tickets/${ticket.data.uuid}`
+                    } catch (err) {
                         setError(err.response?.data?.message);
                     }
-                
+
                 }
             }
-            
-        }else if(mode === "assign"){ //распределение мест
+
+        } else if (mode === "assign") { //распределение мест
             const color = params.selectedColor;
             const allSeats = [...seats];
             allSeats.forEach(row => {
                 const foundedSeat = row.find(seat => `${seat.row}-${seat.index}` === `${clickedSeat.row}-${clickedSeat.index}`);
+                
                 if (foundedSeat) {
-                    foundedSeat.color = color;
+                    if (foundedSeat.color === "#b5b5b5") {
+                        foundedSeat.color = color;
+                    } else {
+                        foundedSeat.color = "#b5b5b5";
+                    }
                 };
             });
             setSeats(allSeats);
-        } else if(mode === "control"){
+        } else if (mode === "control") {
             return;
-        }};
+        }
+    };
 
 
     const getSeatStyle = (seat) => {
         if (seat.type === "aisle") {
             return { border: "none", backgroundColor: 'transparent', cursor: 'default' }; // Дорожка
         }
-        if (mode === "select"){
-            if (seat.seatId){
-                return { backgroundColor: seat.color, cursor: 'pointer' };    
-            }else{
-                return { backgroundColor: seat.color, cursor: 'not-allowed'};
+        if (mode === "select") {
+            if (seat.seatId) {
+                return { backgroundColor: seat.color, cursor: 'pointer' };
+            } else {
+                return { backgroundColor: seat.color, cursor: 'not-allowed' };
             }
-        }else{
+        } else {
             return { backgroundColor: seat.color, cursor: 'pointer' };
         }
     };
-// 
+    // 
     return (
         <div className={styles.container}>
-          <h2 className={styles.title}>Карта рассадки</h2>
-          {error && <p className={styles.error}>{error}</p>}
-          {isAllReserved && mode === "select" && <p className={styles.error}>К сожалению, все места выбранного сектора заняты</p>}
-          <div>
-            <button style={{backgroundColor: sectorColor}}>_</button>Места выбранного сектора
-            <button style={{backgroundColor: "#b5b5b5"}}>_</button>Места другого сектора
-            <button style={{backgroundColor: "#5e5d5d"}}>_</button>Занятые места выбранного сектора
-          </div>
-          <p className={styles.title}>Сцена</p>
-          <div>
-            {seats.map((row, rowIndex) => (
-              <div key={rowIndex} className={styles.row}>
-                {row.map((seat, seatIndex) => (
-                    <button
-                        class="seat"
-                        className={`${styles.seat} ${seat.reserved ? styles.reserved : ""} ${seat.type === "aisle" ? styles.aisle : ""}`}
-                        key={`${rowIndex}-${seatIndex}`}
-                        style={getSeatStyle(seat)}
-                        onClick={() => handleSeatClick(seat)}
-                        disabled={seat.reserved && seat.sectorId}
-                    >
-                      {seat.type === "seat"?`${seat.row}-${seat.index}`:''}
-                    </button>
-                  ))}
-              </div>
-            ))}
-          </div>
+            <h2 className={styles.title}>Карта рассадки</h2>
+            {error && <p className={styles.error}>{error}</p>}
+            {isAllReserved && mode === "select" && <p className={styles.error}>К сожалению, все места выбранного сектора заняты</p>}
+            <div>
+                <button style={{ backgroundColor: sectorColor }}>_</button>Места выбранного сектора
+                <button style={{ backgroundColor: "#b5b5b5" }}>_</button>Места другого сектора
+                <button style={{ backgroundColor: "#5e5d5d" }}>_</button>Занятые места выбранного сектора
+            </div>
+            <p className={styles.title}>Сцена</p>
+            <div>
+                {seats.map((row, rowIndex) => (
+                    <div key={rowIndex} className={styles.row}>
+                        {row.map((seat, seatIndex) => (
+                            <button
+                                class="seat"
+                                className={`${styles.seat} ${seat.reserved ? styles.reserved : ""} ${seat.type === "aisle" ? styles.aisle : ""}`}
+                                key={`${rowIndex}-${seatIndex}`}
+                                style={getSeatStyle(seat)}
+                                onClick={() => handleSeatClick(seat)}
+                                disabled={seat.reserved && seat.sectorId}
+                            >
+                                {seat.type === "seat" ? `${seat.row}-${seat.index}` : ''}
+                            </button>
+                        ))}
+                    </div>
+                ))}
+            </div>
         </div>
-      );
+    );
 };
 
 export default SeatsMap;

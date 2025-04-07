@@ -22,9 +22,9 @@ const AdminTicketsList = () => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        
+
         const fetchData = async () => {
-            try{
+            try {
                 const [ticketsRes, eventRes] = await Promise.all([
                     api.get(`/api/tickets/${eventId}/byEvent`, {
                         headers: { Authorization: `Bearer ${localStorage.getItem("CULT_JWT")}` }
@@ -40,9 +40,9 @@ const AdminTicketsList = () => {
                 );
                 setTicketsInfo(detailedTickets);
                 console.log(detailedTickets);
-            }catch(err){
+            } catch (err) {
                 setError(err.response?.data?.message);
-            }finally{
+            } finally {
                 setLoading(false)
             }
         }
@@ -58,44 +58,54 @@ const AdminTicketsList = () => {
         ticketsInfo.forEach(item => {
             data.push([item.uuid, `${item.visitor.surname} ${item.visitor.name} ${item.visitor.fathername}`, item.sector, Utils.formatDate(item.created), item.seat, item.status]);
         })
-        
+
 
         const worksheet = XLSX.utils.aoa_to_sheet(data);
 
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, "Лист1");
-    
+
         const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
         const fileData = new Blob([excelBuffer], { type: "application/octet-stream" });
         saveAs(fileData, `tickets-${selectedEvent.name}-${(new Date(Date.now())).toLocaleDateString().replace("/", "0")}.xlsx`);
     };
 
     const banTicket = (ticket) => {
-        if (window.confirm(`Уверены, что хотите отозвать билет у ${ticket.visitor.surname} ${ticket.visitor.name} ${ticket.visitor.fathername}?`)){
-            try{
+        if (window.confirm(`Уверены, что хотите отозвать билет у ${ticket.visitor.surname} ${ticket.visitor.name} ${ticket.visitor.fathername}?`)) {
+            try {
                 api.post(`/api/tickets/${ticket.uuid}/ban`, {}, {
                     headers: {
-                        "Authorization": `Bearer ${localStorage.getItem("CULT_JWT")}` 
+                        "Authorization": `Bearer ${localStorage.getItem("CULT_JWT")}`
                     }
-                }).then(() => {window.location.reload()});
-            }catch(err){
+                }).then(() => { window.location.reload() });
+            } catch (err) {
                 setError(err.response?.data?.message);
             }
-            
+
         }
     };
 
     const usedTicket = (ticket) => {
-        if (window.confirm("Отметить присутствие?")){
-            try{
+        if (window.confirm("Отметить присутствие?")) {
+            try {
                 api.post(`/api/tickets/${ticket.uuid}/check`)
-                .then(() => {window.location.reload()});;
-            }catch(err){
+                    .then(() => { window.location.reload() });;
+            } catch (err) {
                 setError(err.response?.data?.message);
             }
         }
     };
 
+    const handleDownload = async (ticketInfo) => {
+        const response = await api.get(`/api/tickets/${ticketInfo.uuid}`, {responseType: "blob"});
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `ticket-${ticketInfo.visitor.surname}-${ticketInfo.visitor.name}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+      };
 
     if (loading) {
         return <h1>Загрузка...</h1>
@@ -127,23 +137,18 @@ const AdminTicketsList = () => {
                             <td>{ticketInfo.seat}</td>
                             <td>
                                 <button disabled={ticketInfo.status === "USED"}
-                                    className={styles.banButton} 
+                                    className={styles.banButton}
                                     onClick={() => banTicket(ticketInfo)}
                                 >
                                     Отозвать билет
                                 </button>
-
-                                <button disabled={ticketInfo.status === "USED"}
-                                    className={styles.checkButton} 
-                                    onClick={() => usedTicket(ticketInfo)}
-                                >
-                                    Отметить присутстивие
-                                </button>
+                            </td>
+                            <td>
                                 <button
-                                    className={styles.checkButton} 
-                                    onClick={() => window.open(`/tickets/${ticketInfo.uuid}`, '_blank')}
+                                    className={styles.checkButton}
+                                    onClick={() => handleDownload(ticketInfo)}
                                 >
-                                    Посмотреть билет
+                                    Скачать билет
                                 </button>
                             </td>
                         </tr>
